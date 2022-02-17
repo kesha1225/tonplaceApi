@@ -5,7 +5,7 @@ import aiohttp
 
 
 class API:
-    def __init__(self, token: str):
+    def __init__(self, token: str, return_error: bool = False):
         self.session = aiohttp.ClientSession()
         self.token = token
         self.base_path = "https://api.ton.place/"
@@ -20,6 +20,7 @@ class API:
             "Sec-Fetch-Site": "same-site",
             "Sec-GPC": "1",
         }
+        self.return_error = return_error
 
     # TODO: фолоу лайки
     async def request(
@@ -36,6 +37,8 @@ class API:
             json=json_data,
             headers=self.headers,
         )
+        if self.return_error:
+            return await resp.text()
         if resp.status == 500:
             raise ValueError("Site is down")
         json_response = json.loads(await resp.text())

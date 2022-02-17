@@ -22,7 +22,8 @@ async def main():
 
         post_author = target_post["ownerId"]
         await api.follow(post_author)
-        print(f"Зафоловились на автора поста - https://ton.place/id{post_author}")
+        # на автора поста тоже можно зафоловиться, его айди лежит в target_post (creatorId или типа того)
+        print(f"Зафоловились на группу - https://ton.place/id{post_author}")
 
 
 asyncio.get_event_loop().run_until_complete(main())
