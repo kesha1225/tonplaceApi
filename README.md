@@ -7,6 +7,11 @@
 Обертка для [ton.place](https://ton.place/kesha1225)
 
 
+### Установка
+
+`pip install https://github.com/kesha1225/tonplaceApi/archive/master.zip`
+
+
 ### Токен
 
 Для работы вам понадобится токен, который можно получить вытащив с самого сайта из cookies или 
