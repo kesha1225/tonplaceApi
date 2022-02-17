@@ -19,7 +19,7 @@ DEFAULT_HEADERS = {
 }
 
 
-async def get_token(phone: str):
+async def get_token(phone: str) -> str:
     session = aiohttp.ClientSession()
 
     await session.post(
