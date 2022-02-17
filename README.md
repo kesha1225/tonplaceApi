@@ -29,7 +29,7 @@ asyncio.get_event_loop().run_until_complete(main())
 ## Примеры
 
 ### Парсинг новых пользователей
-
+```python3
 import asyncio
 
 from tonplace import get_token, API
@@ -46,6 +46,6 @@ async def main():
         user = await api.get_user(user_data["id"])
         # этот запрос возвращает данные которые уже есть в user_data, сделан просто для примера
         print(user)
-
+```
 
 asyncio.get_event_loop().run_until_complete(main())
