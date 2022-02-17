@@ -62,13 +62,14 @@ class API:
         return user
 
     async def search(
-        self, tab: str, sort: str = "popular", city: int = 0, start_from: int = 0
+        self, tab: str, sort: str = "popular", query: str = "", city: int = 0, start_from: int = 0
     ):
         """
         Поиск (возвращает 30 элементов)
 
         :param tab: peoples|groups
         :param sort: popular|new|online
+        :param query: поисковой запрос
         :param start_from: offset
         :param city: по дефолту пока всегда 0
         :return:
@@ -77,7 +78,7 @@ class API:
             "POST",
             path=f"search",
             json_data={
-                "query": "",
+                "query": query,
                 "startFrom": start_from,
                 "tab": tab,
                 "sort": sort,
