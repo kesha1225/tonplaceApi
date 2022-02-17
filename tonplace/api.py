@@ -1,4 +1,5 @@
 import json
+from json import JSONDecodeError
 from typing import Optional
 
 import aiohttp
@@ -22,7 +23,6 @@ class API:
         }
         self.return_error = return_error
 
-    # TODO: фолоу лайки
     async def request(
         self,
         method: str,
@@ -37,12 +37,17 @@ class API:
             json=json_data,
             headers=self.headers,
         )
-        if self.return_error:
-            return await resp.text()
-        if resp.status == 500:
+        if resp.status >= 500:
             raise ValueError("Site is down")
-        json_response = json.loads(await resp.text())
+        try:
+            json_response = json.loads(await resp.text())
+        except JSONDecodeError:
+            if self.return_error:
+                return await resp.text()
+            raise ValueError(f"Ошибка декодирования json")
         if json_response.get("code") == "fatal":
+            if self.return_error:
+                return await resp.text()
             raise ValueError(f"Ошибка запроса - {json_response.get('message')}")
         return json_response
 
@@ -94,6 +99,13 @@ class API:
         result = await self.request(
             "POST",
             path=f"follow/{user_id}/add",
+        )
+        return result
+
+    async def unfollow(self, user_id: int):
+        result = await self.request(
+            "POST",
+            path=f"follow/{user_id}/del",
         )
         return result
 
