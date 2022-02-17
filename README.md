@@ -9,7 +9,9 @@
 
 ### Установка
 
-`pip install https://github.com/kesha1225/tonplaceApi/archive/master.zip`
+```
+pip install https://github.com/kesha1225/tonplaceApi/archive/master.zip
+```
 
 
 ### Токен
