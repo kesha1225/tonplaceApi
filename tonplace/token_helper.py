@@ -92,7 +92,7 @@ async def get_token(phone: str) -> str:
     )
     response_json = json.loads(await resp.text())
     if response_json.get("code") == "fatal":
-        raise ValueError("Неверный хеш, попробуйте еще раз")
+        raise ValueError(f"Неверный хеш, попробуйте еще раз. Ошибка - {response_json}")
 
     token = response_json["access_token"]
 
