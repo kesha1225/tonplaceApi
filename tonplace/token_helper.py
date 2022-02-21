@@ -3,7 +3,6 @@ import time
 
 import aiohttp
 
-
 DEFAULT_HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:98.0) Gecko/20100101 Firefox/98.0",
     "Accept": "*/*",
@@ -19,9 +18,22 @@ DEFAULT_HEADERS = {
 }
 
 
+async def write_session(token):
+    with open('session', 'w+') as session:
+        session.write(token)
+
+async def read_session():
+    try:
+        with open('session', 'r') as session:
+            return session.read()
+    except FileNotFoundError:
+        return False
+
 async def get_token(phone: str) -> str:
     session = aiohttp.ClientSession()
-
+    token = await read_session()
+    if token:
+        return token
     await session.post(
         "https://oauth.telegram.org/auth?bot_id=2141264283&origin=https://ton.place",
         headers=DEFAULT_HEADERS,
@@ -97,4 +109,5 @@ async def get_token(phone: str) -> str:
     token = response_json["access_token"]
 
     await session.close()
+    await write_session(token)
     return token
