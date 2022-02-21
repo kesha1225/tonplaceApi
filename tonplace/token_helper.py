@@ -96,7 +96,6 @@ async def get_token(phone: str) -> str:
                 "id": user["id"],
                 "first_name": user["first_name"],
                 "username": user["username"],
-                "photo_url": user["photo_url"],
                 "auth_date": str(user["auth_date"]),
                 "hash": user["hash"],
             },
