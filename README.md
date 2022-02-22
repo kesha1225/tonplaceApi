@@ -35,6 +35,11 @@ asyncio.get_event_loop().run_until_complete(main())
 
 ## [Примеры](examples/)
 
+### Любой запрос к ton.place
+```python3
+custom_data = await api.request("POST", path=f"test/test", json_data={"test": 123})
+```
+
 ### Парсинг новых пользователей
 ```python3
 import asyncio
