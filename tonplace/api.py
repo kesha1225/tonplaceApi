@@ -24,7 +24,7 @@ class API:
         path: str,
         data: Optional[Union[str, io.BytesIO]] = None,
         json_data: Optional[dict] = None,
-        extra_headers: Optional[dict] = None
+        extra_headers: Optional[dict] = None,
     ):
         current_headers = self.headers
         if extra_headers:
@@ -35,7 +35,7 @@ class API:
             self.base_path + path,
             data=data,
             json=json_data,
-            headers=self.headers
+            headers=self.headers,
         )
 
         if resp.status >= 500:
@@ -277,7 +277,6 @@ class API:
             },
         )
         return result
-
 
     async def close(self):
         await self.session.close()
