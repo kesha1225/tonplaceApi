@@ -1,5 +1,6 @@
 import json
 import time
+from typing import Optional
 
 import aiohttp
 
@@ -18,21 +19,28 @@ DEFAULT_HEADERS = {
 }
 
 
-async def write_session(token):
-    with open('session', 'w+') as session:
+def write_session(phone: str, token: str):
+    with open(f"session_{phone}", "w") as session:
         session.write(token)
 
-async def read_session():
+
+def read_session(phone: str) -> Optional[str]:
     try:
-        with open('session', 'r') as session:
+        with open(f"session_{phone}") as session:
             return session.read()
     except FileNotFoundError:
-        return False
+        return None
 
-async def get_token(phone: str) -> str:
+
+async def get_token(phone: str, save_session: bool = False) -> str:
+    """
+    :param phone:
+    :param save_session: save token in file
+    :return:
+    """
     session = aiohttp.ClientSession()
-    token = await read_session()
-    if token:
+    token = read_session(phone)
+    if token is not None:
         return token
     await session.post(
         "https://oauth.telegram.org/auth?bot_id=2141264283&origin=https://ton.place",
@@ -109,5 +117,6 @@ async def get_token(phone: str) -> str:
     token = response_json["access_token"]
 
     await session.close()
-    await write_session(token)
+    if save_session:
+        write_session(phone, token)
     return token

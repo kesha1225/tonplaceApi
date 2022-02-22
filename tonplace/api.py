@@ -70,7 +70,12 @@ class API:
         return user
 
     async def search(
-        self, tab: str, sort: str = "popular", query: str = "", city: int = 0, start_from: int = 0
+        self,
+        tab: str,
+        sort: str = "popular",
+        query: str = "",
+        city: int = 0,
+        start_from: int = 0,
     ):
         """
         Поиск (возвращает 30 элементов)
