@@ -24,11 +24,11 @@ class API:
         self.return_error = return_error
 
     async def request(
-        self,
-        method: str,
-        path: str,
-        data: Optional[dict] = None,
-        json_data: Optional[dict] = None,
+            self,
+            method: str,
+            path: str,
+            data: Optional[dict] = None,
+            json_data: Optional[dict] = None,
     ):
         resp = await self.session.request(
             method,
@@ -57,6 +57,10 @@ class API:
             )
         return json_response
 
+    async def get_me(self):
+        user = await self.request("POST", path=f"main/init")
+        return user
+
     async def get_user(self, user_id: int):
         """
         Информация о юзере в том числе посты
@@ -65,6 +69,60 @@ class API:
         """
         user = await self.request("POST", path=f"profile/{user_id}")
         return user
+
+    async def __followers(self,
+                          user_id: int,
+                          query: str = "",
+                          start_from: int = 0,
+                          type: str = "inbox"):
+        """
+        Является скрытым с целью уменьшения дублирования кода
+        Возвращает (30) подписок (outbox) или подписчиков (inbox) пользователя
+        :param user_id:
+        :param query: поисковой запрос
+        :param type: inbox/outbox
+        :param start_from: offset
+        :return:
+        """
+        result = await self.request(
+            "POST",
+            path=f"followers/{user_id}/more",
+            json_data={
+                "query": query,
+                "type": type,
+                "startFrom": start_from,
+            },
+        )
+        return result
+
+    async def get_following(self,
+                            user_id: int,
+                            query: str = "",
+                            start_from: int = 0):
+        """
+        Возвращает (30) подписок пользователя
+        :param user_id:
+        :param query: поисковой запрос
+        :param start_from: offset
+        :return:
+        """
+        following = await self.__followers(user_id=user_id, query=query, start_from=start_from, type="outbox")
+        return following
+
+    async def get_followers(self,
+                            user_id: int,
+                            query: str = "",
+                            start_from: int = 0
+                            ):
+        """
+        Возвращает (30) подписчиков пользователя
+        :param user_id:
+        :param query: поисковой запрос
+        :param start_from: offset
+        :return:
+        """
+        followers = await self.__followers(user_id=user_id, query=query, start_from=start_from, type="inbox")
+        return followers
 
     async def get_group(self, group_id: int):
         """
@@ -76,12 +134,12 @@ class API:
         return user
 
     async def search(
-        self,
-        tab: str,
-        sort: str = "popular",
-        query: str = "",
-        city: int = 0,
-        start_from: int = 0,
+            self,
+            tab: str,
+            sort: str = "popular",
+            query: str = "",
+            city: int = 0,
+            start_from: int = 0,
     ):
         """
         Поиск (возвращает 30 элементов)
@@ -128,12 +186,12 @@ class API:
         return result
 
     async def write_comment(
-        self,
-        post_id: int,
-        text: str,
-        attachments: Optional[list] = None,
-        reply: Optional[int] = 0,
-        group_id: Optional[int] = 0,
+            self,
+            post_id: int,
+            text: str,
+            attachments: Optional[list] = None,
+            reply: Optional[int] = 0,
+            group_id: Optional[int] = 0,
     ):
         if attachments is None:
             attachments = []
