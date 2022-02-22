@@ -55,6 +55,64 @@ class API:
             )
         return json_response
 
+    async def __followers(self,
+                          user_id: int,
+                          query: str = "",
+                          start_from: int = 0,
+                          type: str = "inbox"):
+        """
+        Является скрытым с целью уменьшения дублирования кода
+        Возвращает (30) подписок (outbox) или подписчиков (inbox) пользователя
+        :param user_id:
+        :param query: поисковой запрос
+        :param type: inbox/outbox
+        :param start_from: offset
+        :return:
+        """
+        result = await self.request(
+            "POST",
+            path=f"followers/{user_id}/more",
+            json_data={
+                "query": query,
+                "type": type,
+                "startFrom": start_from,
+            },
+        )
+        return result
+
+    async def get_following(self,
+                            user_id: int,
+                            query: str = "",
+                            start_from: int = 0):
+        """
+        Возвращает (30) подписок пользователя
+        :param user_id:
+        :param query: поисковой запрос
+        :param start_from: offset
+        :return:
+        """
+        following = await self.__followers(user_id=user_id, query=query, start_from=start_from, type="outbox")
+        return following
+
+    async def get_followers(self,
+                            user_id: int,
+                            query: str = "",
+                            start_from: int = 0
+                            ):
+        """
+        Возвращает (30) подписчиков пользователя
+        :param user_id:
+        :param query: поисковой запрос
+        :param start_from: offset
+        :return:
+        """
+        followers = await self.__followers(user_id=user_id, query=query, start_from=start_from, type="inbox")
+        return followers
+
+    async def get_me(self):
+        user = await self.request("POST", path="main/init")
+        return user
+
     async def get_user(self, user_id: int):
         """
         Информация о юзере в том числе посты
