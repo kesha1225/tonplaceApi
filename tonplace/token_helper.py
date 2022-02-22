@@ -95,20 +95,23 @@ async def get_token(phone: str, save_session: bool = False) -> str:
         headers=DEFAULT_HEADERS,
     )
 
+    json_data = {
+        "device": f"chrome_{int(time.time())}",
+        "params": {
+            "id": user["id"],
+            "first_name": user["first_name"],
+            "username": user["username"],
+            "auth_date": str(user["auth_date"]),
+            "hash": user["hash"],
+        },
+    }
+    if "photo_url" in user:
+        json_data["params"]["photo_url"] = user["photo_url"]
+
     resp = await session.post(
         "https://api.ton.place/auth/telegram",
         headers=DEFAULT_HEADERS,
-        json={
-            "device": f"chrome_{int(time.time())}",
-            "params": {
-                "id": user["id"],
-                "first_name": user["first_name"],
-                "username": user["username"],
-                "photo_url": user["photo_url"],
-                "auth_date": str(user["auth_date"]),
-                "hash": user["hash"],
-            },
-        },
+        json=json_data,
     )
     response_json = json.loads(await resp.text())
     if response_json.get("code") == "fatal":
