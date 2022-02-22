@@ -1,5 +1,6 @@
 import json
 import time
+from typing import Optional
 
 import aiohttp
 
@@ -18,22 +19,30 @@ DEFAULT_HEADERS = {
 }
 
 
-async def write_session(token):
-    with open('session', 'w+') as session:
+def write_session(phone: str, token: str):
+    with open(f"session_{phone}", "w") as session:
         session.write(token)
 
-async def read_session():
+
+def read_session(phone: str) -> Optional[str]:
     try:
-        with open('session', 'r') as session:
+        with open(f"session_{phone}") as session:
             return session.read()
     except FileNotFoundError:
-        return False
+        return None
 
-async def get_token(phone: str) -> str:
-    session = aiohttp.ClientSession()
-    token = await read_session()
-    if token:
+
+async def get_token(phone: str, save_session: bool = False) -> str:
+    """
+    :param phone:
+    :param save_session: save token in file
+    :return:
+    """
+    token = read_session(phone)
+    if token is not None:
         return token
+
+    session = aiohttp.ClientSession()
     await session.post(
         "https://oauth.telegram.org/auth?bot_id=2141264283&origin=https://ton.place",
         headers=DEFAULT_HEADERS,
@@ -87,19 +96,23 @@ async def get_token(phone: str) -> str:
         headers=DEFAULT_HEADERS,
     )
 
+    json_data = {
+        "device": f"chrome_{int(time.time())}",
+        "params": {
+            "id": user["id"],
+            "first_name": user["first_name"],
+            "username": user["username"],
+            "auth_date": str(user["auth_date"]),
+            "hash": user["hash"],
+        },
+    }
+    if "photo_url" in user:
+        json_data["params"]["photo_url"] = user["photo_url"]
+
     resp = await session.post(
         "https://api.ton.place/auth/telegram",
         headers=DEFAULT_HEADERS,
-        json={
-            "device": f"chrome_{int(time.time())}",
-            "params": {
-                "id": user["id"],
-                "first_name": user["first_name"],
-                "username": user["username"],
-                "auth_date": str(user["auth_date"]),
-                "hash": user["hash"],
-            },
-        },
+        json=json_data,
     )
     response_json = json.loads(await resp.text())
     if response_json.get("code") == "fatal":
@@ -108,5 +121,6 @@ async def get_token(phone: str) -> str:
     token = response_json["access_token"]
 
     await session.close()
-    await write_session(token)
+    if save_session:
+        write_session(phone, token)
     return token

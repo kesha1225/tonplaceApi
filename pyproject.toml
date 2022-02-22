@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "tonplace"
-version = "0.1.1"
+version = "0.1.2"
 description = ""
 authors = ["kesha1225 <samedov03@mail.ru>"]
 
