@@ -1,7 +1,6 @@
-import io
 import json
 from json import JSONDecodeError
-from typing import Optional, Union
+from typing import Optional, Any
 
 import aiohttp
 
@@ -22,14 +21,9 @@ class API:
         self,
         method: str,
         path: str,
-        data: Optional[Union[str, io.BytesIO]] = None,
+        data: Optional[Any] = None,
         json_data: Optional[dict] = None,
-        extra_headers: Optional[dict] = None,
     ):
-        current_headers = self.headers
-        if extra_headers:
-            current_headers.update(extra_headers)
-        print(current_headers)
         resp = await self.session.request(
             method,
             self.base_path + path,
