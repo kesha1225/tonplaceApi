@@ -19,6 +19,15 @@ async def main():
     res = await api.get_feed("liked")
     print(res)
 
+    res = await api.get_dialogs()
+    print(res)
+
+    res = await api.get_notify()
+    print(res)
+
+    res = await api.get_balance()
+    print(res)
+
     await api.close()
 
 
