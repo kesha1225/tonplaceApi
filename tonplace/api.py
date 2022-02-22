@@ -44,11 +44,17 @@ class API:
         except JSONDecodeError:
             if self.return_error:
                 return await resp.text()
-            raise ValueError(f"Ошибка декодирования json")
+            raise ValueError(
+                f"Ошибка декодирования json ответа, чтобы получать ошибки - return_error=True"
+            )
+        if isinstance(json_response, str):
+            return json_response
         if json_response.get("code") == "fatal":
             if self.return_error:
                 return await resp.text()
-            raise ValueError(f"Ошибка запроса - {json_response.get('message')}")
+            raise ValueError(
+                f"Ошибка запроса - {json_response.get('message')}, чтобы получать ошибки - return_error=True"
+            )
         return json_response
 
     async def get_user(self, user_id: int):
@@ -143,6 +149,63 @@ class API:
             },
         )
         return result
+
+    async def read_post(self, post_id: int):
+        """
+        Засчитывает просмотр посту
+        :param post_id:
+        :return:
+        """
+        result = await self.read_posts([post_id])
+        return result
+
+    async def read_posts(self, post_ids: list[int]):
+        """
+        Засчитывает просмотр постам
+        :param post_ids:
+        :return:
+        """
+        result = await self.request(
+            "POST",
+            path=f"posts/read",
+            json_data={
+                "posts": post_ids,
+            },
+        )
+        return result
+
+    async def get_post(self, post_id: int):
+        result = await self.request(
+            "GET",
+            path=f"posts/{post_id}",
+        )
+        return result
+
+    async def get_feed(self, section: str, start_from: int = 0, suggestions: Optional[bool] = None):
+        """
+        Получить ленту
+
+        :param section: - following|suggestions|liked (подписки, рекомендации, понравилось)
+        :param start_from: - offset
+        :param suggestions:
+        :return:
+        """
+        if suggestions is None and section != "suggestions":
+            suggestions = False
+
+        result = await self.request(
+            "POST",
+            path=f"feed",
+            json_data={
+                "section": section,
+                "startFrom": start_from,
+                "suggestions": suggestions
+            }
+        )
+        return result
+
+    async def get_dialogs(self):
+        pass
 
     async def close(self):
         await self.session.close()

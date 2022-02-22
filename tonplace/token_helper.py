@@ -38,10 +38,11 @@ async def get_token(phone: str, save_session: bool = False) -> str:
     :param save_session: save token in file
     :return:
     """
-    session = aiohttp.ClientSession()
     token = read_session(phone)
     if token is not None:
         return token
+
+    session = aiohttp.ClientSession()
     await session.post(
         "https://oauth.telegram.org/auth?bot_id=2141264283&origin=https://ton.place",
         headers=DEFAULT_HEADERS,
