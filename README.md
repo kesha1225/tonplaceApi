@@ -25,7 +25,8 @@ from tonplace import get_token
 
 
 async def main():
-    token = await get_token("79123456789")  # Ваш номер от аккаунта в телеграме
+    token = await get_token("79123456789", save_session=True)  # Ваш номер от аккаунта в телеграме
+    # save_session сохраняет токены номеров в файлы и при следующем вызове get_token достает их
     print(token)  # bxnjkfdh42fpFlX86CJetlbwPJfbTfcz11Y1y6Obqvf5mm86WFRl3D69
 
 
