@@ -1,8 +1,11 @@
+import io
 import json
 from json import JSONDecodeError
-from typing import Optional, Any
+from typing import Optional, Any, Union
 
 import aiohttp
+
+from tonplace.attachments import Attachments
 
 
 class API:
@@ -67,7 +70,7 @@ class API:
         :param group_id:
         :return:
         """
-        user = await self.request("POST", path=f"/group/{group_id}")
+        user = await self.request("POST", path=f"group/{group_id}")
         return user
 
     async def search(
@@ -130,8 +133,11 @@ class API:
         reply: Optional[int] = 0,
         group_id: Optional[int] = 0,
     ):
+        # TODO: унести куда нибудь
         if attachments is None:
             attachments = []
+        if isinstance(attachments, Attachments):
+            attachments = attachments.get_attachments()
         result = await self.request(
             "POST",
             path=f"posts/new",
@@ -232,7 +238,7 @@ class API:
     async def send_ton(self, address: str, amount: float):
         result = await self.request(
             "POST",
-            path=f"/balance/withdraw",
+            path=f"balance/withdraw",
             json_data={
                 "address": address,
                 "amount": amount,
@@ -246,11 +252,11 @@ class API:
         text: str = "",
         parent_id: int = 0,
         timer: int = 0,
-        attachments: Optional[list] = None,
+        attachments: Optional[Union[list, Attachments]] = None,
     ):
         """
         Создать пост
-        :param owner_id: айди страницы или группы
+        :param owner_id: айди страницы или группы (айди группы нужно указывать с минусом 123 -> -123)
         :param text:
         :param parent_id:
         :param timer:
@@ -259,18 +265,38 @@ class API:
         """
         if attachments is None:
             attachments = []
+        if isinstance(attachments, Attachments):
+            attachments = attachments.get_attachments()
+
         result = await self.request(
             "POST",
-            path=f"/posts/new",
+            path=f"posts/new",
             json_data={
-                "attachments": attachments,
                 "ownerId": owner_id,
-                "parentId": parent_id,
                 "text": text,
+                "parentId": parent_id,
+                "attachments": attachments,
                 "timer": timer,
             },
         )
         return result
+
+    async def upload_photo(self, data: bytes, album_id: int = -3):
+        headers = self.headers.copy()
+
+        form_data = aiohttp.FormData()
+        form_data.add_field(
+            "file", io.BytesIO(data), filename="blob", content_type="image/jpeg"
+        )
+        form_data.add_field("album_id", str(album_id))
+        form_data = form_data()
+        headers.update(form_data.headers)
+
+        resp = await self.session.post(
+            "https://upload.ton.place/photos/upload", headers=headers, data=form_data
+        )
+
+        return json.loads(await resp.text())
 
     async def close(self):
         await self.session.close()
