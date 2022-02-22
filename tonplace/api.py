@@ -1,6 +1,7 @@
+import io
 import json
 from json import JSONDecodeError
-from typing import Optional
+from typing import Optional, Union
 
 import aiohttp
 
@@ -10,16 +11,10 @@ class API:
         self.session = aiohttp.ClientSession()
         self.token = token
         self.base_path = "https://api.ton.place/"
+        self.upload_path = "https://upload.ton.place/"
         self.headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:98.0) Gecko/20100101 Firefox/98.0",
-            "Accept": "application/json, text/plain, */*",
-            "Accept-Language": "ru",
             "Content-Type": "application/json",
             "Authorization": token,
-            "Sec-Fetch-Dest": "empty",
-            "Sec-Fetch-Mode": "cors",
-            "Sec-Fetch-Site": "same-site",
-            "Sec-GPC": "1",
         }
         self.return_error = return_error
 
@@ -27,16 +22,22 @@ class API:
         self,
         method: str,
         path: str,
-        data: Optional[dict] = None,
+        data: Optional[Union[str, io.BytesIO]] = None,
         json_data: Optional[dict] = None,
+        extra_headers: Optional[dict] = None
     ):
+        current_headers = self.headers
+        if extra_headers:
+            current_headers.update(extra_headers)
+        print(current_headers)
         resp = await self.session.request(
             method,
             self.base_path + path,
             data=data,
             json=json_data,
-            headers=self.headers,
+            headers=self.headers
         )
+
         if resp.status >= 500:
             raise ValueError("Site is down")
         try:
@@ -86,7 +87,7 @@ class API:
         """
         Поиск (возвращает 30 элементов)
 
-        :param tab: peoples|groups
+        :param tab: explore|peoples|groups
         :param sort: popular|new|online
         :param query: поисковой запрос
         :param start_from: offset
@@ -130,7 +131,7 @@ class API:
     async def write_comment(
         self,
         post_id: int,
-        text: str,
+        text: str = "",
         attachments: Optional[list] = None,
         reply: Optional[int] = 0,
         group_id: Optional[int] = 0,
@@ -181,7 +182,9 @@ class API:
         )
         return result
 
-    async def get_feed(self, section: str, start_from: int = 0, suggestions: Optional[bool] = None):
+    async def get_feed(
+        self, section: str, start_from: int = 0, suggestions: Optional[bool] = None
+    ):
         """
         Получить ленту
 
@@ -199,13 +202,82 @@ class API:
             json_data={
                 "section": section,
                 "startFrom": start_from,
-                "suggestions": suggestions
-            }
+                "suggestions": suggestions,
+            },
         )
         return result
 
     async def get_dialogs(self):
-        pass
+        result = await self.request(
+            "GET",
+            path=f"im",
+        )
+        return result
+
+    async def get_notify(self):
+        result = await self.request(
+            "GET",
+            path=f"notify",
+        )
+        return result
+
+    async def get_owned_groups(self):
+        result = await self.request(
+            "GET",
+            path=f"groups",
+        )
+        return result
+
+    async def get_balance(self):
+        result = await self.request(
+            "GET",
+            path=f"balance",
+        )
+        return result
+
+    async def send_ton(self, address: str, amount: float):
+        result = await self.request(
+            "POST",
+            path=f"/balance/withdraw",
+            json_data={
+                "address": address,
+                "amount": amount,
+            },
+        )
+        return result
+
+    async def create_post(
+        self,
+        owner_id: int,
+        text: str = "",
+        parent_id: int = 0,
+        timer: int = 0,
+        attachments: Optional[list] = None,
+    ):
+        """
+        Создать пост
+        :param owner_id: айди страницы или группы
+        :param text:
+        :param parent_id:
+        :param timer:
+        :param attachments:
+        :return:
+        """
+        if attachments is None:
+            attachments = []
+        result = await self.request(
+            "POST",
+            path=f"/posts/new",
+            json_data={
+                "attachments": attachments,
+                "ownerId": owner_id,
+                "parentId": parent_id,
+                "text": text,
+                "timer": timer,
+            },
+        )
+        return result
+
 
     async def close(self):
         await self.session.close()
