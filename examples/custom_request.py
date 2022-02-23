@@ -1,3 +1,6 @@
+"""
+Кастомный реквест на метод который не прописан
+"""
 import asyncio
 
 from tonplace import get_token, API

@@ -1,3 +1,6 @@
+"""
+Создание поста с фото и видео
+"""
 import asyncio
 
 from tonplace import get_token, API, Attachments

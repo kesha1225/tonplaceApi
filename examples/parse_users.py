@@ -1,3 +1,6 @@
+"""
+Парсинг новых пользователей
+"""
 import asyncio
 
 from tonplace import get_token, API

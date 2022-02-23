@@ -133,6 +133,15 @@ class API:
         reply: Optional[int] = 0,
         group_id: Optional[int] = 0,
     ):
+        """
+
+        :param post_id:
+        :param text:
+        :param attachments:
+        :param reply: если хотим ответить на комментарий, равен post_id
+        :param group_id:
+        :return:
+        """
         # TODO: унести куда нибудь
         if attachments is None:
             attachments = []
@@ -176,6 +185,7 @@ class API:
         return result
 
     async def get_post(self, post_id: int):
+        # TODO: next from comments
         result = await self.request(
             "GET",
             path=f"posts/{post_id}",

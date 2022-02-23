@@ -1,3 +1,6 @@
+"""
+Разные методы
+"""
 import asyncio
 
 from tonplace import get_token, API

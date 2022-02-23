@@ -1,3 +1,6 @@
+"""
+Написание комментария на посты в популярных группах
+"""
 import asyncio
 
 from tonplace import get_token, API

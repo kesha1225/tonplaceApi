@@ -1,3 +1,6 @@
+"""
+Пример получения токена
+"""
 import asyncio
 
 from tonplace import get_token
