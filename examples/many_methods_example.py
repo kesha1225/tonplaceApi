@@ -31,6 +31,27 @@ async def main():
     res = await api.get_balance()
     print(res)
 
+    res = await api.get_referrals()
+    print(res)
+
+    res = await api.edit_profile(
+        birth_day=2,
+        birth_month=3,
+        birth_year=1990,
+        city_id=0,
+        country_id=0,
+        first_name="test",
+        last_name="test",
+        sex=2,
+    )
+    print(res)
+
+    res = await api.check_domain("durov")
+    print(res)
+
+    res = await api.change_domain("durov555")
+    print(res)
+
     await api.close()
 
 

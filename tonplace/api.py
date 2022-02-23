@@ -347,5 +347,63 @@ class API:
             file_name=file_name,
         )
 
+    async def get_referrals(self):
+        result = await self.request(
+            "GET",
+            path=f"invite/friends",
+        )
+        return result
+
+    async def edit_profile(
+        self,
+        birth_day: int,
+        birth_month: int,
+        birth_year: int,
+        city_id: int,
+        country_id: int,
+        first_name: str,
+        last_name: str,
+        sex: int,
+    ):
+        result = await self.request(
+            "POST",
+            path=f"profile/edit",
+            json_data={
+                "bDay": birth_day,
+                "bMonth": birth_month,
+                "bYear": birth_year,
+                "cityId": city_id,
+                "countryId": country_id,
+                "firstName": first_name,
+                "lastName": last_name,
+                "sex": sex,
+            },
+        )
+        return result
+
+    async def check_domain(self, domain: str):
+        """
+        Проверяет свободен ли адрес в соцсети (в случае занятого адреса возвращает 400)
+        :return:
+        """
+        result = await self.request(
+            "GET",
+            path=f"domain/check",
+            json_data={
+                "domain": domain
+            }
+        )
+        return result
+
+    async def change_domain(self, domain: str):
+        result = await self.request(
+            "GET",
+            path=f"profile/domain",
+            json_data={
+                "domain": domain
+            }
+        )
+        return result
+
     async def close(self):
         await self.session.close()
