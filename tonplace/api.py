@@ -281,22 +281,61 @@ class API:
         )
         return result
 
-    async def upload_photo(self, data: bytes, album_id: int = -3):
+    async def _upload(
+        self,
+        upload_type: str,
+        data: bytes,
+        content_type: str,
+        album_id: int = -3,
+        file_name: str = "blob",
+    ):
+        """
+        :param upload_type: photos|video
+        :param data:
+        :param content_type:
+        :param album_id:
+        :param file_name:
+        :return:
+        """
         headers = self.headers.copy()
 
         form_data = aiohttp.FormData()
         form_data.add_field(
-            "file", io.BytesIO(data), filename="blob", content_type="image/jpeg"
+            "file", io.BytesIO(data), filename=file_name, content_type=content_type
         )
         form_data.add_field("album_id", str(album_id))
         form_data = form_data()
         headers.update(form_data.headers)
 
         resp = await self.session.post(
-            "https://upload.ton.place/photos/upload", headers=headers, data=form_data
+            f"https://upload.ton.place/{upload_type}/upload",
+            headers=headers,
+            data=form_data,
         )
 
         return json.loads(await resp.text())
+
+    async def upload_photo(
+        self, data: bytes, album_id: int = -3, file_name: str = "blob"
+    ):
+        return await self._upload(
+            upload_type="photos",
+            data=data,
+            content_type="image/jpeg",
+            album_id=album_id,
+            file_name=file_name,
+        )
+
+    async def upload_video(
+        self, data: bytes, album_id: int = -3, file_name: str = "blob"
+    ):
+        return await self._upload(
+            upload_type="video",
+            data=data,
+            content_type="video/mp4",
+            album_id=album_id,
+            file_name=file_name,
+        )
 
     async def close(self):
         await self.session.close()
