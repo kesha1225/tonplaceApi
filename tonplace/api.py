@@ -55,6 +55,10 @@ class API:
             )
         return json_response
 
+    async def get_me(self):
+        resp = await self.request("GET", path=f"main/init")
+        return resp
+
     async def get_user(self, user_id: int):
         """
         Информация о юзере в том числе посты
@@ -122,6 +126,13 @@ class API:
         result = await self.request(
             "POST",
             path=f"likes/{post_id}/post/add",
+        )
+        return result
+
+    async def unlike(self, post_id: int):
+        result = await self.request(
+            "POST",
+            path=f"likes/{post_id}/post/del",
         )
         return result
 
@@ -387,21 +398,39 @@ class API:
         :return:
         """
         result = await self.request(
-            "GET",
-            path=f"domain/check",
-            json_data={
-                "domain": domain
-            }
+            "GET", path=f"domain/check", json_data={"domain": domain}
         )
         return result
 
     async def change_domain(self, domain: str):
         result = await self.request(
+            "GET", path=f"profile/domain", json_data={"domain": domain}
+        )
+        return result
+
+    async def get_follow(
+        self,
+        user_id: int,
+        followers_type: str = "inbox",
+        start_from: int = 0,
+        query: str = "",
+    ):
+        """
+
+        :param user_id:
+        :param query:
+        :param start_from:
+        :param followers_type: inbox|outbox (подписчики|подписки)
+        :return:
+        """
+        result = await self.request(
             "GET",
-            path=f"profile/domain",
+            path=f"followers/{user_id}/more",
             json_data={
-                "domain": domain
-            }
+                "query": query,
+                "type": followers_type,
+                "startFrom": start_from,
+            },
         )
         return result
 

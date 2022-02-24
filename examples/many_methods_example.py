@@ -49,7 +49,23 @@ async def main():
     res = await api.check_domain("durov")
     print(res)
 
-    res = await api.change_domain("durov555")
+    res = await api.change_domain("durov5555")
+    print(res)
+
+    res = await api.unlike(1106580)
+    print(res)
+
+    res = await api.get_me()
+    print(res)
+
+    res = await api.get_follow(
+        456, followers_type="inbox"
+    )
+    print(res)
+
+    res = await api.get_follow(
+        123, followers_type="outbox"
+    )
     print(res)
 
     await api.close()
